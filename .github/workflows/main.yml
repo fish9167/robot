@@ -9,7 +9,7 @@ on:
 jobs:
   at_robot:
     if: |
-      contains(github.event.comment.body, '@cocos-robot run test cases')
+      contains(github.event.comment.body, '@cocos-wahah run build')
     runs-on: ubuntu-latest
 
     steps:
@@ -18,3 +18,4 @@ jobs:
       - name: run test cases
         run: |
           echo "call run test cases"
+          echo "{{ github.event.comment.body }}" | grep branch
