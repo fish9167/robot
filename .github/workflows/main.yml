@@ -40,17 +40,18 @@ jobs:
           "@ | ConvertFrom-Json
           Write-Host $pull_request
           Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
+
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+      #  with:
+      #    ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: run test build
-        id: commit_build
         run: |
           echo "call run test build"
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
+          echo "::set-output name=submit_branch::$(submit_branch)"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
@@ -101,17 +102,19 @@ jobs:
           Write-Host $pull_request
           Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
           Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
+
+
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+      #  with:
+      #    ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: run test build
-        id: commit_build
         run: |
           echo "call run test build"
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
+          echo "::set-output name=submit_branch::$(submit_branch)"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
