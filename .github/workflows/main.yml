@@ -47,6 +47,7 @@ jobs:
       #    ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: run test build
+        shell: bash
         run: |
           echo "call run test build"
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
