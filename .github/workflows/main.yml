@@ -1,4 +1,4 @@
-ame: run_build
+name: run_build
 
 on: 
   pull_request_review_comment:
