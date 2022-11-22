@@ -114,6 +114,7 @@ jobs:
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
 
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
             title: '[CI AUTO]: Automated PR '
