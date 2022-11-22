@@ -14,8 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: run test cases
+      - name: run test build
         run: |
           echo "call run test build"
-          comment=`${{ github.event.comment.body }} | grep branch | awk '{print $NF}'`
-          echo "${comment}"
+          submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
+          echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
