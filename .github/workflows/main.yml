@@ -14,8 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
       - name: run test cases
         run: |
-          echo "call run test cases"
-          echo "{{ github.event.comment.body }}" | grep branch
+          echo "call run test build"
+          comment=`${{ github.event.comment.body }} | grep branch | awk '{print $NF}'`
+          echo "${comment}"
