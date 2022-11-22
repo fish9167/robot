@@ -1,4 +1,4 @@
-name: at_robot
+name: run_build
 
 on: 
   pull_request_review_comment:
@@ -7,15 +7,123 @@ on:
     types: [created, edited]
 
 jobs:
-  at_robot:
+  win_build:
     if: |
       contains(github.event.comment.body, '@cocos-wahah run build')
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Get PR Number
+        id: get_pr
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "issue_comment") {
+            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
+          }
+          else {
+            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
+          }
+      - name: Get PR Details
+        id: pr_deatils
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse Pull Request
+        id: parse_pr
+        shell: pwsh
+        run: |
+          $pull_request = @"
+          ${{ steps.pr_deatils.outputs.data }}
+          "@ | ConvertFrom-Json
+          Write-Host $pull_request
+          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+
       - name: run test build
+        id: commit_build
         run: |
           echo "call run test build"
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
+
+        uses: peter-evans/create-pull-request@v4
+        with:
+            title: '[CI AUTO]: Automated PR '
+            body: |
+              CI commit
+            committer: cocos-robot <cocos-robot@cocos.com>
+            author: cocos-robot <cocos-robot@cocos.com>
+            commit-message: "CI commit ${{ steps.parse_pr.outputs.pr_head_sha }}  (#${{ steps.get_pr.outputs.pr_number }})"
+            token: ${{ secrets.PR_TOKEN }}
+            push-to-fork: cocos-engine-external
+            branch: ${{ steps.commit_build.outputs.submit_branch }}
+            branch-suffix: short-commit-hash
+            delete-branch: true
+
+
+  mac_build:
+    if: |
+      contains(github.event.comment.body, '@cocos-wahah run build')
+    runs-on: macos-latest
+    steps:
+      - name: Get PR Number
+        id: get_pr
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "issue_comment") {
+            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
+          }
+          else {
+            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
+          }
+      - name: Get PR Details
+        id: pr_deatils
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse Pull Request
+        id: parse_pr
+        shell: pwsh
+        run: |
+          $pull_request = @"
+          ${{ steps.pr_deatils.outputs.data }}
+          "@ | ConvertFrom-Json
+          Write-Host $pull_request
+          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
+          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+
+      - name: run test build
+        id: commit_build
+        run: |
+          echo "call run test build"
+          submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
+          echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
+
+        uses: peter-evans/create-pull-request@v4
+        with:
+            title: '[CI AUTO]: Automated PR '
+            body: |
+              CI commit
+            committer: cocos-robot <cocos-robot@cocos.com>
+            author: cocos-robot <cocos-robot@cocos.com>
+            commit-message: "CI commit ${{ steps.parse_pr.outputs.pr_head_sha }}  (#${{ steps.get_pr.outputs.pr_number }})"
+            token: ${{ secrets.PR_TOKEN }}
+            push-to-fork: cocos-engine-external
+            branch: ${{ steps.commit_build.outputs.submit_branch }}
+            branch-suffix: short-commit-hash
+            delete-branch: true
