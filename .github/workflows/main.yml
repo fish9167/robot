@@ -44,8 +44,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-      #  with:
-      #    ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+        with:
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: run test build
         shell: bash
@@ -54,25 +54,24 @@ jobs:
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
           echo "::set-output name=submit_branch::$(submit_branch)"
-          mkidr external
-          cd external
-          git clone https://github.com/cocos/cocos-engine-external.git
-          git checkout ${submit_branch}
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+      - name: upload ftp
+        uses: dennisameling/ftp-upload-action@v1
         with:
-            title: '[CI AUTO]: Automated PR '
-            body: |
-              CI commit
-            committer: cocos-robot <cocos-robot@cocos.com>
-            author: cocos-robot <cocos-robot@cocos.com>
-            commit-message: "CI commit ${{ steps.parse_pr.outputs.pr_head_sha }}  (#${{ steps.get_pr.outputs.pr_number }})"
-            token: ${{ secrets.PR_TOKEN }}
-            push-to-fork: cocos-engine-external
-            branch: ${{ steps.commit_build.outputs.submit_branch }}
-            branch-suffix: short-commit-hash
-            delete-branch: true
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local_dir: ./ # Should always end with /
+          server_dir: ./ # Should always end with /
+
+      # https://github.com/TickX/auto-cross-pr
+      - name: Create Pull Request
+        uses: TickX/auto-cross-pr@v0.1.3
+        with:
+          token: ${{ secrets.PR_TOKEN }}
+          item: path/to/file.ext
+          repo: target-repo
+          repo_owner: my-org
 
 
   mac_build:
@@ -112,8 +111,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-      #  with:
-      #    ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+        with:
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: run test build
         run: |
@@ -121,22 +120,21 @@ jobs:
           submit_branch=`echo ${{ github.event.comment.body }} | grep submit | awk '{print $NF}'`
           echo "提交到仓库(cocos-engine-external), 分支: ${submit_branch}"
           echo "::set-output name=submit_branch::$(submit_branch)"
-          mkidr external
-          cd external
-          git clone https://github.com/cocos/cocos-engine-external.git
-          git checkout ${submit_branch}
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+      - name: upload ftp
+        uses: dennisameling/ftp-upload-action@v1
         with:
-            title: '[CI AUTO]: Automated PR '
-            body: |
-              CI commit
-            committer: cocos-robot <cocos-robot@cocos.com>
-            author: cocos-robot <cocos-robot@cocos.com>
-            commit-message: "CI commit ${{ steps.parse_pr.outputs.pr_head_sha }}  (#${{ steps.get_pr.outputs.pr_number }})"
-            token: ${{ secrets.PR_TOKEN }}
-            push-to-fork: cocos-engine-external
-            branch: ${{ steps.commit_build.outputs.submit_branch }}
-            branch-suffix: short-commit-hash
-            delete-branch: true
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local_dir: ./ # Should always end with /
+          server_dir: ./ # Should always end with /
+
+      # https://github.com/TickX/auto-cross-pr
+      - name: Create Pull Request
+        uses: TickX/auto-cross-pr@v0.1.3
+        with:
+          token: ${{ secrets.PR_TOKEN }}
+          item: path/to/file.ext
+          repo: target-repo
+          repo_owner: my-org
