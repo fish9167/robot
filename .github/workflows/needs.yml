@@ -21,3 +21,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Checkout private tools
+        uses: actions/checkout@v3
+        with:
+          repository: fish9167/pr-check-fill
+          #token: ${{ secrets.GH_PAT }}
+          path: pr-check-fill
+    
