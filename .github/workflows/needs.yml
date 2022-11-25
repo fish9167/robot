@@ -15,9 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
  
-   over_build:
+  over_build:
     runs-on: ubuntu-latest
-    needs: win_build, mac_build
+    needs: [win_build, mac_build]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
