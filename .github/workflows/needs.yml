@@ -25,7 +25,10 @@ jobs:
       - name: Checkout private tools
         uses: actions/checkout@v3
         with:
-          repository: fish9167/pr-check-fill
-          #token: ${{ secrets.GH_PAT }}
+          repository: shaoqiangcai/LightFX
+          #token: ${{ secrets.PR_TOKEN }}
           path: pr-check-fill
-    
+
+      - name: Check
+        run: |
+          ls -alrth
