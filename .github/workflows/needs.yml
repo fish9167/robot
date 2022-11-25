@@ -26,8 +26,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: shaoqiangcai/LightFX
-          #token: ${{ secrets.PR_TOKEN }}
-          path: pr-check-fill
+          token: ${{ secrets.PR_TOKEN }}
+          path: LightFX
+          ref: master
 
       - name: Check
         run: |
